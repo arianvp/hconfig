@@ -1,0 +1,38 @@
+# Use a minimal base image.
+language: c
+
+# Do not spam me with build status emails please.
+notifications:
+  email: false
+
+# Use a non-ancient Ubuntu version. This requires setting sudo: required.
+dist: trusty
+sudo: required
+
+addons:
+  apt:
+    sources:
+      - fpcomplete-trusty
+    packages:
+      - stack
+      # Haskell requires libgmp for big integers.
+      - libgmp-dev
+
+cache:
+  directories:
+    - $HOME/.stack
+
+install:
+  # Install the compiler. Pass --no-terminal to tell Stack it is not running in
+  # an interactive terminal, so it prints messages sequentially instead of
+  # updating them. The latter is less spammy but Travis does not support these
+  # interactive terminal capabilities.
+  - stack setup -j2 --no-terminal
+
+script:
+  # Build and test. Pass --split-objs to produce smaller binaries. (It is a kind
+  # of hack to do dead code elimination by putting every function in a separate
+  # object, so the linker will not link unused functions.)
+  - stack build -j2 --no-terminal --split-objs
+  # Also build (but don't run) the benchmark. Stack does not build it by default.
+  - stack test -j2 --no-terminal --split-objs
