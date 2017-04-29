@@ -1,6 +1,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
+
+-- | Read configuration from environment variables.
 module Data.Config.Env
   ( Error(..)
   , fromEnv
@@ -19,8 +21,15 @@ import System.Environment (lookupEnv)
 
 import qualified Data.Set as Set
 
-data Error = VarMissing | ParseError deriving (Eq, Ord, Show)
+-- | When a config part could not be retrieved.
+data Error
+  = VarMissing -- ^ The environment variable was not set.
+  | ParseError -- ^ The environment variable could not be parsed.
+  deriving (Eq, Ord, Show)
 
+-- | Read configuration from environment variables using some prefix. An
+-- underscore is added to the prefix automatically, and all keys are
+-- upper-cased.
 fromEnv :: Text -> Config Text a -> IO (AccValidation (Set (Text, Error)) a)
 fromEnv prefix = getCompose . runAp go
   where
