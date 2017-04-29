@@ -1,7 +1,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE KindSignatures #-}
 module Data.Config
-  ( ConfigF(..)
+  ( Config
+  , ConfigF(..)
   , text
   , int
   , optional
