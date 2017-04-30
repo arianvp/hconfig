@@ -1,17 +1,22 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE KindSignatures #-}
 
 -- | Applicative configuration DSL.
 module Data.Config
-  ( Config
+  ( -- * Constructing computations
+    Config
   , ConfigF(..)
   , text
   , int
   , optional
   , prefix
+
+    -- * Transforming computations
+  , mapKeys
   ) where
 
-import Control.Applicative.Free (Ap, liftAp)
+import Control.Applicative.Free (Ap, hoistAp, liftAp)
 import Data.Text (Text)
 
 -- | A computation which produces configuration.
@@ -39,3 +44,11 @@ optional = liftAp . Optional
 -- | Configuration part which nests other configuration.
 prefix :: k -> Config k a -> Config k a
 prefix = (liftAp .) . Prefix
+
+-- | Change the keys of a configuration computation.
+mapKeys :: (k -> l) -> Config k a -> Config l a
+mapKeys f = hoistAp $ \case
+  Text k next -> Text (f k) next
+  Int k next -> Int (f k) next
+  Optional next -> Optional (mapKeys f next)
+  Prefix k next -> Prefix (f k) (mapKeys f next)
