@@ -1,5 +1,8 @@
 name:                hconfig
 version:             0.0.1
+synopsis:            Applicative configuration DSL
+category:            Configuration
+author:              Arian van Putten, rightfold
 license:             BSD3
 license-file:        LICENSE
 build-type:          Simple
